@@ -27,7 +27,7 @@ classifiers = [
 ]
 
 dependencies = [
-    "httpx>=0.25.0",
+    "airbnb-scraper @ git+https://github.com/rabi3laser/airbnb-scraper.git",
     "pydantic>=2.0.0",
 ]
 
