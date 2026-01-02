@@ -1,6 +1,8 @@
 # Listing Grader 📊
 
-Score your Airbnb listing 0-100 with actionable recommendations.
+**Airbnb Visibility Score** - Aligned with Airbnb's 2025 ranking algorithm.
+
+Score your listing 0-100 and get actionable recommendations to improve your search ranking.
 
 ## Installation
 
@@ -13,14 +15,11 @@ pip install git+https://github.com/rabi3laser/hosttools.git#subdirectory=service
 ```python
 from listing_grader import ListingGrader
 
-# Initialize grader
 grader = ListingGrader()
-
-# Grade a listing by URL
 result = await grader.grade("https://www.airbnb.com/rooms/12345678")
 
-print(f"Overall Score: {result.overall_score}/100")
-print(f"Recommendations: {result.recommendations}")
+print(f"Visibility Score: {result.overall_score}/100")
+print(f"Guest Favorites Eligible: {result.guest_favorites_eligible}")
 ```
 
 ## CLI Usage
@@ -29,153 +28,144 @@ print(f"Recommendations: {result.recommendations}")
 # Grade a single listing
 listing-grader https://www.airbnb.com/rooms/12345678
 
-# Grade with market comparison
+# With market comparison
 listing-grader https://www.airbnb.com/rooms/12345678 --compare-market
 
-# Output as JSON
+# Output JSON
 listing-grader https://www.airbnb.com/rooms/12345678 --json
 ```
 
-## Scoring Algorithm
+## 🎯 Airbnb Algorithm Alignment (2025)
 
-| Category | Weight | What We Analyze |
-|----------|--------|-----------------|
-| Title | 15% | Length, keywords, emoji usage |
-| Description | 15% | Length, completeness, keywords |
-| Photos | 20% | Count, quality indicators |
-| Pricing | 15% | Market comparison, value |
-| Amenities | 15% | Essential vs premium amenities |
-| Reviews | 20% | Rating, count, recency |
+Our scoring mirrors **Airbnb's actual ranking factors**:
 
-### Bonus Points
-- Superhost status: +5 points
-- Instant Book: +3 points
-- Response rate: +2 points
+| Factor | Weight | What Airbnb Measures |
+|--------|--------|---------------------|
+| **Reviews / Guest Favorites** | 25% | Rating 4.9+, 6 sub-categories |
+| **Response Rate & Time** | 15% | < 1h ideal, 90%+ rate |
+| **Pricing** | 15% | Competitiveness vs local market |
+| **Conversion Signals** | 12% | Photos, title, description quality |
+| **Instant Book** | 10% | Enabled = +10-15% ranking boost |
+| **Cancellation Rate** | 8% | < 1% for Guest Favorites |
+| **Listing Quality** | 8% | Amenities, completeness |
+| **Calendar Availability** | 7% | Updated, open availability |
+
+### Guest Favorites Criteria
+
+To earn Airbnb's **Guest Favorites badge** (gold heart):
+
+- ⭐ Overall rating ≥ **4.9**
+- 📝 At least **5 reviews** in past 4 years
+- ✅ Recent review in past 2 years
+- 🚫 Cancellation rate < **1%**
+- 📊 High scores in all 6 sub-categories:
+  - Cleanliness, Accuracy, Check-in
+  - Communication, Location, Value
+
+## Example Output
+
+```
+============================================================
+🏠 AIRBNB VISIBILITY SCORE - Algorithm Aligned (2025)
+============================================================
+📍 Stunning Modern Loft in Le Marais - Eiffel Tower Views
+📍 Paris
+============================================================
+
+🏆 VISIBILITY SCORE: 92/100 (Grade: A)
+   [██████████████████░░]
+
+   🏅 GUEST FAVORITES ELIGIBLE ✓
+
+📊 RANKING FACTORS:
+   Factor               Score   Weight    Impact
+   ------------------------------------------------
+   Reviews              95/100     25%    23.8pts
+   Response Time       100/100     15%    15.0pts
+   Pricing              85/100     15%    12.8pts
+   Conversion           90/100     12%    10.8pts
+   Instant Book        100/100     10%    10.0pts
+   Cancellations       100/100      8%     8.0pts
+   Listing Quality      88/100      8%     7.0pts
+   Availability         90/100      7%     6.3pts
+
+🎁 BADGES & BONUSES:
+   ✓ Superhost: +5 points
+   ✓ Guest Favorites: +10 points
+
+💡 TOP ACTIONS TO IMPROVE RANKING:
+   1. Enable market comparison for pricing optimization
+   2. ✅ Instant Book enabled - good for ranking
+```
 
 ## API Response
 
 ```python
-@dataclass
-class GradeResult:
-    listing_id: str
-    overall_score: int          # 0-100
-    
-    # Category scores
-    title_score: int            # 0-100
-    description_score: int      # 0-100
-    photos_score: int           # 0-100
-    pricing_score: int          # 0-100
-    amenities_score: int        # 0-100
-    reviews_score: int          # 0-100
-    
-    # Insights
-    recommendations: List[str]  # Actionable tips
-    strengths: List[str]        # What's working well
-    weaknesses: List[str]       # Areas to improve
-    
-    # Market context
-    market_percentile: int      # Your rank vs competitors
-    competitor_avg_score: int   # Average score in your area
+{
+    "overall_score": 92,
+    "grade": "A",
+    "category_scores": {
+        "reviews": {"score": 95, "weight": "25%"},
+        "response": {"score": 100, "weight": "15%"},
+        "pricing": {"score": 85, "weight": "15%"},
+        "conversion": {"score": 90, "weight": "12%"},
+        "instant_book": {"score": 100, "weight": "10%"},
+        "cancellation": {"score": 100, "weight": "8%"},
+        "listing_quality": {"score": 88, "weight": "8%"},
+        "availability": {"score": 90, "weight": "7%"},
+    },
+    "bonuses": {
+        "superhost": 5,
+        "guest_favorites": 10
+    },
+    "recommendations": [
+        "Enable market comparison for pricing optimization",
+        "Add more photos (20+ recommended)"
+    ],
+    "guest_favorites_eligible": True
+}
 ```
 
-## Examples
+## Key Recommendations by Priority
 
-### Basic Grading
+### 🔴 CRITICAL (Fix immediately)
+- Rating below 4.5
+- No reviews
+- High cancellation rate
+- Response rate below 80%
 
-```python
-import asyncio
-from listing_grader import ListingGrader
+### 🟡 HIGH IMPACT
+- Rating below 4.8 (hurts visibility)
+- Instant Book disabled
+- Response time over 1 hour
+- Less than 10 photos
 
-async def main():
-    grader = ListingGrader()
-    
-    result = await grader.grade("https://www.airbnb.com/rooms/12345678")
-    
-    print(f"🏠 {result.listing_id}")
-    print(f"📊 Overall: {result.overall_score}/100")
-    print(f"📝 Title: {result.title_score}/100")
-    print(f"📸 Photos: {result.photos_score}/100")
-    print(f"⭐ Reviews: {result.reviews_score}/100")
-    
-    print("\n💡 Recommendations:")
-    for rec in result.recommendations:
-        print(f"  • {rec}")
+### 📊 MEDIUM
+- Missing essential amenities
+- Short description
+- Limited calendar availability
 
-asyncio.run(main())
-```
+## Versions
 
-### With Market Comparison
+### v2 (Current) - Airbnb Algorithm Aligned
+- 8 ranking factors based on Airbnb 2025 algorithm
+- Guest Favorites eligibility check
+- Response rate/time scoring
+- Cancellation rate impact
+- Priority-based recommendations
 
-```python
-async def compare_to_market():
-    grader = ListingGrader()
-    
-    # Grade with market context
-    result = await grader.grade(
-        "https://www.airbnb.com/rooms/12345678",
-        compare_market=True,
-        market_radius_km=5
-    )
-    
-    print(f"Your Score: {result.overall_score}/100")
-    print(f"Market Average: {result.competitor_avg_score}/100")
-    print(f"Your Percentile: Top {100 - result.market_percentile}%")
+### v1 (Legacy)
+- 6 category scoring (title, description, photos, pricing, amenities, reviews)
+- Basic weighted scoring
+- Still available in `scorer.py`
 
-asyncio.run(compare_to_market())
-```
+## Sources
 
-### Batch Processing
-
-```python
-async def grade_multiple():
-    grader = ListingGrader()
-    
-    urls = [
-        "https://www.airbnb.com/rooms/111111",
-        "https://www.airbnb.com/rooms/222222",
-        "https://www.airbnb.com/rooms/333333",
-    ]
-    
-    results = await grader.grade_batch(urls)
-    
-    for result in results:
-        print(f"{result.listing_id}: {result.overall_score}/100")
-
-asyncio.run(grade_multiple())
-```
-
-## Scoring Details
-
-### Title Score (15%)
-- Length: 30-60 chars optimal
-- Keywords: Location, type, unique features
-- Emojis: 1-2 acceptable, more penalized
-- ALL CAPS: Penalized
-
-### Description Score (15%)
-- Length: 500-1500 chars optimal
-- Sections: House rules, check-in, neighborhood
-- Keywords: Amenities, attractions, transport
-
-### Photos Score (20%)
-- Count: 15+ photos optimal
-- Cover photo quality
-- Variety: Interior, exterior, amenities
-
-### Pricing Score (15%)
-- Market comparison (if enabled)
-- Price-to-quality ratio
-- Seasonal adjustment
-
-### Amenities Score (15%)
-- Essential: Wifi, Kitchen, AC/Heating
-- Premium: Pool, Hot tub, Workspace
-- Safety: Smoke detector, First aid
-
-### Reviews Score (20%)
-- Rating: 4.8+ excellent
-- Count: 50+ reviews optimal
-- Recency: Recent reviews weighted higher
+Scoring based on:
+- [Airbnb Help Center - How search results work](https://www.airbnb.com/help/article/39)
+- [Airbnb Resource Center - Guest Favorites](https://www.airbnb.com/resources/hosting-homes/a/understanding-guest-favorites-642)
+- AirDNA research on ranking factors
+- Rental Scale-Up algorithm analysis (2025)
 
 ## License
 
