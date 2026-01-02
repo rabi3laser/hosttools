@@ -13,6 +13,7 @@ from .scorer_v2 import (
     calculate_airbnb_score,
     score_to_grade,
     ALGORITHM_WEIGHTS,
+    ESSENTIAL_AMENITIES,
     score_reviews,
     score_response,
     score_pricing,
@@ -39,6 +40,7 @@ __all__ = [
     "calculate_airbnb_score",
     "score_to_grade",
     "ALGORITHM_WEIGHTS",
+    "ESSENTIAL_AMENITIES",
     
     # Scoring functions
     "score_reviews",
